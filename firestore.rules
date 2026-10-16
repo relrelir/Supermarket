@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isMember(fid) {
+      return signedIn() && request.auth.uid in get(/databases/$(database)/documents/families/$(fid)).data.members;
+    }
+
+    // Each user's own profile: which family they belong to and their display name.
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Join codes: readable one at a time by anyone who knows the code; never listable.
+    match /codes/{code} {
+      allow get: if signedIn();
+      allow create: if signedIn()
+        && request.auth.uid in getAfter(/databases/$(database)/documents/families/$(request.resource.data.familyId)).data.members;
+    }
+
+    match /families/{fid} {
+      allow read: if isMember(fid);
+      allow create: if signedIn() && request.resource.data.members == [request.auth.uid];
+      // Members may edit the family; anyone holding the code may add only themselves to members.
+      allow update: if isMember(fid) || (
+        signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
+        && request.resource.data.members.hasAll(resource.data.members)
+        && request.resource.data.members.toSet().difference(resource.data.members.toSet()) == [request.auth.uid].toSet()
+      );
+
+      match /{document=**} {
+        allow read, write: if isMember(fid);
+      }
+    }
+  }
+}
