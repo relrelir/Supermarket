@@ -18,18 +18,21 @@ android {
         }
     }
     signingConfigs {
-        // A fixed key committed with the project so every build can update the installed app.
-        // Fine for sideloading within the family; use a private key before publishing to Google Play.
+        // The release key is kept out of the repository. CI decodes it from the
+        // ANDROID_KEYSTORE_BASE64 secret and passes its path and password as environment variables.
         family {
-            storeFile file('app.keystore')
-            storePassword 'shoppinglist'
-            keyAlias 'shoppinglist'
-            keyPassword 'shoppinglist'
+            def keystore = System.getenv('ANDROID_KEYSTORE_PATH')
+            if (keystore) {
+                storeFile file(keystore)
+                storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                keyAlias 'shoppinglist'
+                keyPassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+            }
         }
     }
     buildTypes {
         release {
-            signingConfig signingConfigs.family
+            if (System.getenv('ANDROID_KEYSTORE_PATH')) signingConfig signingConfigs.family
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

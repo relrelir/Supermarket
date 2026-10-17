@@ -28,8 +28,20 @@ jobs:
       - run: npm run build
       - run: npx cap sync android
 
+      - name: Decode signing key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::Missing ANDROID_KEYSTORE_BASE64 secret (see README, 'חתימה')"; exit 1
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+
       - name: Build signed APK
         working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/release.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: ./gradlew assembleRelease -PversionCode=${{ github.run_number }} --no-daemon
 
       - name: Rename APK

@@ -58,4 +58,9 @@ npm test
 ```
 מבנה: `src/screens` – המסכים, `src/data` – הגישה ל-Firestore, `src/categories.ts` – המחלקות ומילון הניחוש, `firestore.rules` – כללי האבטחה, `android/` – פרויקט Capacitor.
 
-**חתימה:** מפתח החתימה `android/app/app.keystore` שמור בריפו כדי שכל בנייה תוכל לעדכן את האפליקציה המותקנת. זה מספיק להתקנה בתוך המשפחה; לפני פרסום ב-Google Play יש להחליף למפתח פרטי.
+**חתימה:** מפתח החתימה לא נמצא בריפו. הוא שמור בשני GitHub Secrets:
+- `ANDROID_KEYSTORE_BASE64` – קובץ ה-keystore בקידוד base64.
+- `ANDROID_KEYSTORE_PASSWORD` – הסיסמה שלו.
+
+שמרו עותק של המפתח במקום בטוח. בלעדיו אי אפשר לפרסם עדכונים לאפליקציה המותקנת.
+אם מחליפים את המפתח, צריך לעדכן גם את טביעת האצבע ב-`public/.well-known/assetlinks.json`.

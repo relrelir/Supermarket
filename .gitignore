@@ -10,3 +10,7 @@ android/local.properties
 .firebase
 *-debug.log
 apk-download/
+
+# Signing keys live in GitHub Secrets, never in the repo
+*.jks
+*.keystore
