@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "emulators": "firebase emulators:start --only firestore,auth --project demo-family",
-    "android:sync": "npm run build && cap sync android"
+    "android:sync": "npm run build && cap sync android",
+    "firebase:setup": "bash scripts/setup-firebase.sh"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",

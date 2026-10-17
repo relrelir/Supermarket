@@ -13,40 +13,30 @@
 - **כמה רשימות** – סופר, פארם, שוק וכו'.
 - **עובד בלי קליטה** – השינויים נשמרים בטלפון ומסתנכרנים כשחוזרת הקליטה.
 
-## התקנה – פעם אחת (כ-10 דקות)
+## התקנה
 
-### 1. פרויקט Firebase (השרת החינמי שמסנכרן בין הטלפונים)
-1. נכנסים ל-[console.firebase.google.com](https://console.firebase.google.com) עם חשבון גוגל ← **Create a project** (שם כלשהו, אפשר לכבות Analytics).
-2. בתפריט: **Build → Authentication → Get started** ← לשונית **Sign-in method** ← מפעילים **Anonymous**.
-3. בתפריט: **Build → Firestore Database → Create database** ← בוחרים מיקום (למשל `eur3`) ← **Start in production mode**.
-4. בתוך Firestore ← לשונית **Rules** ← מוחקים הכל ומדביקים את התוכן של הקובץ [`firestore.rules`](firestore.rules) ← **Publish**.
-5. ⚙️ **Project settings** ← למטה **Your apps** ← לוחצים על אייקון הווב `</>` ← שם כלשהו ← **Register app**. יופיעו ערכים כמו `apiKey`, `projectId` וכו' – משאירים את הדף פתוח.
+### 1. השרת (Firebase) – כבר מוגדר ✅
+האפליקציה מחוברת לפרויקט Firebase בשם `shopping-list-436407` ([קונסול](https://console.firebase.google.com/project/shopping-list-436407/overview)). בפרויקט מוגדרים מסד נתונים Firestore באירופה, התחברות אנונימית וכללי אבטחה.
+ההגדרות נמצאות ב-`src/firebase-config.json`. הן ציבוריות מטבען, ומה שמגן על הנתונים הם כללי האבטחה ב-[`firestore.rules`](firestore.rules).
 
-### 2. הזנת הפרטים ב-GitHub
-בריפו: **Settings → Secrets and variables → Actions → New repository secret**, ומוסיפים 6 סודות:
+כדי להקים פרויקט אחר מחדש, צריך מחשב שמחובר ל-Firebase (`firebase login`) ולהריץ:
+```bash
+npm run firebase:setup -- <project-id>            # פרויקט קיים
+npm run firebase:setup -- <project-id> --create   # פרויקט חדש
+```
+אחרי ההרצה עושים commit ו-push לקבצים `src/firebase-config.json` ו-`.firebaserc`, והאפליקציה נבנית מחדש.
+כשמשנים את `firestore.rules`, מעלים אותם עם `npx firebase-tools deploy --only firestore:rules`.
 
-| שם הסוד | הערך מ-Firebase |
-|---|---|
-| `VITE_FIREBASE_API_KEY` | `apiKey` |
-| `VITE_FIREBASE_AUTH_DOMAIN` | `authDomain` |
-| `VITE_FIREBASE_PROJECT_ID` | `projectId` |
-| `VITE_FIREBASE_STORAGE_BUCKET` | `storageBucket` |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | `messagingSenderId` |
-| `VITE_FIREBASE_APP_ID` | `appId` |
-
-> הערכים האלה לא באמת סודיים (הם מוטמעים באפליקציה). מה שמגן על הנתונים הם כללי האבטחה משלב 1.4.
-
-### 3. גרסת ווב (לאייפון / למחשב)
-**Settings → Pages → Source: GitHub Actions**. אחרי ה-push הבא, האפליקציה תהיה זמינה בכתובת
-`https://relrelir.github.io/Supermarket/` – בטלפון פותחים בדפדפן ← "הוספה למסך הבית".
-
-### 4. הורדת האפליקציה לאנדרואיד
-- **Actions → Build Android APK** ← מריצים מחדש (**Re-run all jobs**) כדי שהבנייה תכלול את הסודות.
+### 2. הורדת האפליקציה לאנדרואיד
 - כשהענף הוא ברירת המחדל של הריפו, כל בנייה מתפרסמת גם ב-**Releases**. קישור קבוע לגרסה האחרונה:
   `https://github.com/relrelir/Supermarket/releases/latest/download/shopping-list.apk`
 - אחרת: נכנסים להרצה ב-Actions ← למטה **Artifacts** ← `shopping-list-apk` (מתקבל ZIP, בתוכו ה-APK).
 - בטלפון: פותחים את הקובץ ← מאשרים "התקנה ממקורות לא ידועים" ← התקנה.
 - גרסאות חדשות מותקנות כעדכון מעל הקיימת, בלי לאבד נתונים.
+
+### 3. גרסת ווב (לאייפון / למחשב)
+**Settings → Pages → Source: GitHub Actions**. אחרי ה-push הבא, האפליקציה תהיה זמינה בכתובת
+`https://relrelir.github.io/Supermarket/` – בטלפון פותחים בדפדפן ← "הוספה למסך הבית".
 
 ## שימוש
 1. בטלפון הראשון: **משפחה חדשה** ← השם שלכם ושם המשפחה.
@@ -56,7 +46,7 @@
 ## פיתוח
 ```bash
 npm install
-cp .env.example .env.local     # ממלאים ערכי Firebase, או VITE_USE_EMULATORS=true
+echo VITE_USE_EMULATORS=true > .env.local   # לעבודה מול שרת מקומי; בלי זה – מול הפרויקט האמיתי
 npm run emulators              # שרת Firebase מקומי (דורש firebase-tools ו-Java)
 npm run dev
 npm test

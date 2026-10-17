@@ -6,17 +6,24 @@ import {
   persistentLocalCache,
   persistentMultipleTabManager,
 } from 'firebase/firestore';
+import projectConfig from './firebase-config.json';
 
 const env = import.meta.env;
 const useEmulators = env.VITE_USE_EMULATORS === 'true';
 
+// The web config is public by design (it ships to every browser); access is guarded by firestore.rules.
+// VITE_FIREBASE_* variables override it, e.g. to point a local build at another project.
+const base: Partial<typeof projectConfig> = useEmulators
+  ? { apiKey: 'demo-key', projectId: 'demo-family' }
+  : projectConfig;
+
 const config = {
-  apiKey: env.VITE_FIREBASE_API_KEY || (useEmulators ? 'demo-key' : ''),
-  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: env.VITE_FIREBASE_PROJECT_ID || (useEmulators ? 'demo-family' : ''),
-  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: env.VITE_FIREBASE_APP_ID,
+  apiKey: env.VITE_FIREBASE_API_KEY || base.apiKey,
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || base.authDomain,
+  projectId: env.VITE_FIREBASE_PROJECT_ID || base.projectId,
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || base.storageBucket,
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || base.messagingSenderId,
+  appId: env.VITE_FIREBASE_APP_ID || base.appId,
 };
 
 export const isConfigured = Boolean(config.apiKey && config.projectId);
