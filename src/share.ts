@@ -10,13 +10,18 @@ export function publicUrl(): string {
   return import.meta.env.VITE_PUBLIC_URL || `https://${projectConfig.projectId}.web.app/`;
 }
 
+/** Latest signed APK, attached to every GitHub release by the build workflow. */
+export const ANDROID_DOWNLOAD_URL = 'https://github.com/relrelir/Supermarket/releases/latest/download/shopping-list.apk';
+
 export function inviteText(familyName: string, code: string): string {
   const url = publicUrl();
   return [
     `הצטרפו לרשימת הקניות "${familyName}" 🛒`,
     `קוד משפחה: ${code}`,
-    url ? `${url}?join=${code}` : '',
-  ].filter(Boolean).join('\n');
+    `${url}?join=${code}`,
+    '',
+    `להתקנת האפליקציה באנדרואיד: ${ANDROID_DOWNLOAD_URL}`,
+  ].join('\n');
 }
 
 export async function shareText(text: string): Promise<'shared' | 'copied'> {
