@@ -9,3 +9,4 @@ android/.gradle
 android/local.properties
 .firebase
 *-debug.log
+apk-download/
