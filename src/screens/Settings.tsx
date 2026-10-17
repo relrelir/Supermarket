@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { leaveFamily, renameFamily, setDisplayName } from '../data/api';
+import { renameFamily, setDisplayName } from '../data/api';
 import { useSession, useToast } from '../context';
 import { inviteText, shareText } from '../share';
 import { Header, PromptModal } from '../ui';
@@ -35,14 +35,6 @@ export function Settings() {
           </button>
         </section>
 
-        <button
-          className="btn danger"
-          onClick={() => {
-            if (confirm('לעזוב את המשפחה במכשיר הזה? תוכלו להצטרף שוב עם הקוד.')) leaveFamily();
-          }}
-        >
-          יציאה מהמשפחה
-        </button>
         <p className="muted small center">גרסה {__APP_VERSION__}</p>
       </main>
 

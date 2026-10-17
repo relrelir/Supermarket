@@ -67,10 +67,6 @@ export async function joinFamily(rawCode: string, displayName: string): Promise<
   return familyId;
 }
 
-export async function leaveFamily() {
-  await setDoc(doc(db, 'users', uid()), { familyId: null }, { merge: true });
-}
-
 export function renameFamily(fid: string, name: string) {
   background(updateDoc(doc(db, 'families', fid), { name }));
 }
