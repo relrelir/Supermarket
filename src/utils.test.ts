@@ -78,3 +78,12 @@ describe('parseEntry', () => {
     expect(parseEntry(text)).toEqual(expected);
   });
 });
+
+describe('invite links', () => {
+  it('extracts the join code from an invite URL', async () => {
+    const { joinCodeFromLink } = await import('./joinLink');
+    expect(joinCodeFromLink('https://shopping-list-436407.web.app/?join=u8wchh')).toBe('U8WCHH');
+    expect(joinCodeFromLink('https://shopping-list-436407.web.app/#/list/x')).toBe('');
+    expect(joinCodeFromLink('not a url')).toBe('');
+  });
+});

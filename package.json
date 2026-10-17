@@ -11,7 +11,8 @@
     "test": "vitest run",
     "emulators": "firebase emulators:start --only firestore,auth --project demo-family",
     "android:sync": "npm run build && cap sync android",
-    "firebase:setup": "bash scripts/setup-firebase.sh"
+    "firebase:setup": "bash scripts/setup-firebase.sh",
+    "deploy:web": "npm run build && npx -y firebase-tools@15 deploy --only hosting"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",

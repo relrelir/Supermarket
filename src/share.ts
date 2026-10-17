@@ -1,12 +1,13 @@
 import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
+import projectConfig from './firebase-config.json';
 
-/** Public web address of the app, used in invite links (also from inside the Android app). */
+/**
+ * Address used in invite links. The web app is served by Firebase Hosting on this domain,
+ * which also hosts /.well-known/assetlinks.json so the links open the Android app when installed.
+ */
 export function publicUrl(): string {
-  const configured = import.meta.env.VITE_PUBLIC_URL;
-  if (configured) return configured;
-  if (Capacitor.isNativePlatform()) return '';
-  return location.origin + location.pathname;
+  return import.meta.env.VITE_PUBLIC_URL || `https://${projectConfig.projectId}.web.app/`;
 }
 
 export function inviteText(familyName: string, code: string): string {

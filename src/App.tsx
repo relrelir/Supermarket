@@ -4,7 +4,9 @@ import { ensureUser, isConfigured } from './firebase';
 import { useFamily, useProfile } from './data/hooks';
 import { SessionProvider, ToastProvider } from './context';
 import { useRoute } from './router';
-import { Loading } from './ui';
+import { Loading, Modal } from './ui';
+import { joinFamily } from './data/api';
+import { clearPendingJoin, usePendingJoin } from './joinLink';
 import { Welcome } from './screens/Welcome';
 import { Lists } from './screens/Lists';
 import { ListView } from './screens/ListView';
@@ -39,6 +41,42 @@ function FamilyGate({ user }: { user: User }) {
   return <FamilySession user={user} familyId={familyId} displayName={profile?.displayName ?? ''} />;
 }
 
+/** An invite link opened by someone who already belongs to a family. */
+function JoinPrompt({ currentCode, displayName }: { currentCode: string; displayName: string }) {
+  const code = usePendingJoin();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    if (code && code === currentCode) clearPendingJoin(); // already a member
+  }, [code, currentCode]);
+  if (!code || code === currentCode) return null;
+  return (
+    <Modal title="הזמנה למשפחה אחרת" onClose={clearPendingJoin}>
+      <p>קיבלת הזמנה להצטרף למשפחה עם הקוד <b dir="ltr">{code}</b>. לעבור אליה? הרשימות של המשפחה הנוכחית יישארו אצל שאר בני המשפחה.</p>
+      {error && <p className="error">{error}</p>}
+      <div className="row-buttons">
+        <button className="btn ghost" onClick={clearPendingJoin}>להישאר</button>
+        <button
+          className="btn primary"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            try {
+              await joinFamily(code, displayName);
+              clearPendingJoin();
+            } catch (e) {
+              setError(e instanceof Error ? e.message : 'משהו השתבש');
+              setBusy(false);
+            }
+          }}
+        >
+          {busy ? 'רגע…' : 'מעבר למשפחה'}
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 function FamilySession({ user, familyId, displayName }: { user: User; familyId: string; displayName: string }) {
   const family = useFamily(familyId);
   if (family === undefined) return <Loading />;
@@ -47,6 +85,7 @@ function FamilySession({ user, familyId, displayName }: { user: User; familyId: 
   return (
     <SessionProvider value={{ uid: user.uid, displayName, family }}>
       <Routes />
+      <JoinPrompt currentCode={family.code} displayName={displayName} />
     </SessionProvider>
   );
 }

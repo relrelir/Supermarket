@@ -44,8 +44,3 @@ export function useRoute(): Route {
   }, []);
   return route;
 }
-
-/** Join code passed in a shared link: ?join=CODE */
-export function joinCodeFromUrl(): string {
-  return new URLSearchParams(location.search).get('join') ?? '';
-}

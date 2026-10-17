@@ -1,16 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createFamily, joinFamily } from '../data/api';
-import { joinCodeFromUrl } from '../router';
+import { clearPendingJoin, usePendingJoin } from '../joinLink';
 import { cleanCode } from '../utils';
 
 export function Welcome({ initialName }: { initialName: string }) {
-  const urlCode = joinCodeFromUrl();
-  const [mode, setMode] = useState<'create' | 'join'>(urlCode ? 'join' : 'create');
+  const linkCode = usePendingJoin();
+  const [mode, setMode] = useState<'create' | 'join'>(linkCode ? 'join' : 'create');
   const [name, setName] = useState(initialName);
   const [familyName, setFamilyName] = useState('');
-  const [code, setCode] = useState(cleanCode(urlCode));
+  const [code, setCode] = useState(linkCode);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  // An invite link may arrive while this screen is already open (Android app in the background).
+  useEffect(() => {
+    if (linkCode) {
+      setMode('join');
+      setCode(linkCode);
+    }
+  }, [linkCode]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +27,7 @@ export function Welcome({ initialName }: { initialName: string }) {
     try {
       if (mode === 'create') await createFamily(familyName.trim() || 'המשפחה שלנו', name.trim());
       else await joinFamily(code, name.trim());
-      if (urlCode) history.replaceState(null, '', location.pathname + '#/');
+      clearPendingJoin();
     } catch (err) {
       console.error(err);
       setError(err instanceof Error && /[֐-׿]/.test(err.message) ? err.message : 'משהו השתבש. בדקו חיבור לאינטרנט ונסו שוב.');

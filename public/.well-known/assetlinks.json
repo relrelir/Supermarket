@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.family.shoppinglist",
+      "sha256_cert_fingerprints": [
+        "B9:FD:4E:94:57:73:37:59:77:6E:3A:E8:D6:43:A9:C8:D5:F1:DE:37:A3:24:DC:30:BE:7F:C8:15:42:6F:6E:CD"
+      ]
+    }
+  }
+]
